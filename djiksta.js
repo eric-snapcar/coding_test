@@ -2,40 +2,36 @@
 
 class Edge {
     constructor(x,y,r){
-        this.edge = [x,y];
         this.x = x;
         this.y = y;
         this.value = r;
     }
-    contains(x){
-        return this.edge[0] == x || this.edge[1] == x
-    }
-    crossingVertices(explored){
+    crossingEdge(explored){
         if(explored[this.x] == undefined && explored[this.y] != undefined){
-           return {u:this.y,v:this.x};
+           return [this.y,this.x];
         }
         if(explored[this.x] != undefined && explored[this.y] == undefined){
-           return {u:this.x,v:this.y};
+           return [this.x,this.y];
         }
     }
     isCrossing(explored){
         return (explored[this.x] == undefined && explored[this.y] != undefined) || (explored[this.x] != undefined && explored[this.y] == undefined)
     }
 }
-function getNextVertex(explored,edges) {
+function getNextVertex(explored,crossingEdges) {
+    let edges = crossingEdges;
     let minScore = Infinity;
     let w;
     for(i in edges){
         let edge = edges[i];
-        let crossingVertices = edge.crossingVertices(explored);
-        let u = crossingVertices.u;
-        let v = crossingVertices.v;
+        let crossingEdge = edge.crossingEdge(explored);
+        let u = crossingEdge[0];
+        let v = crossingEdge[1];
         let score = explored[u] + edge.value;
         if(score < minScore){
            w = v;
            minScore = score;
         }
-        minScore = Math.min(minScore,score);
     }
     return {key:w,score:minScore};
 }
@@ -51,8 +47,8 @@ function getCrossingEdges(explored,edges) {
 }
 function djikstra(s,n,m,edges) {
     explored = {};
+    explored[s] = 0;
     while(Object.keys(explored).length < n){
-         explored[s] = 0;
         let w = getNextVertex(explored,getCrossingEdges(explored,edges));
         explored[w.key] = w.score;
     }
